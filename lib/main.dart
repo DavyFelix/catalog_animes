@@ -2,11 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 
-import 'components/animes_page.dart';
-import 'components/theme_controller.dart';
+import 'pages/animes_page.dart';
+import 'pages/theme_controller.dart';
+
+// 🔥 Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   await initHiveForFlutter();
 
   runApp(const RootApp());
@@ -41,7 +50,7 @@ class _GraphQLWrapperState extends State<_GraphQLWrapper> {
   }
 
   Future<void> _initClient() async {
-    await Future.delayed(const Duration(milliseconds: 600)); // 👈 só pra dar tempo do skeleton aparecer
+    await Future.delayed(const Duration(milliseconds: 600));
 
     final httpLink = HttpLink('https://graphql.anilist.co');
 
@@ -64,15 +73,12 @@ class _GraphQLWrapperState extends State<_GraphQLWrapper> {
       theme: ThemeData.light(useMaterial3: true),
       darkTheme: ThemeData.dark(useMaterial3: true),
       themeMode: controller.themeMode,
-
       home: AnimatedTheme(
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
         data: controller.themeMode == ThemeMode.dark
             ? ThemeData.dark(useMaterial3: true)
             : ThemeData.light(useMaterial3: true),
-
-        // 👇 se ainda NÃO criou o client → mostra skeleton
         child: client == null
             ? const _MainSkeleton()
             : GraphQLProvider(
@@ -84,7 +90,6 @@ class _GraphQLWrapperState extends State<_GraphQLWrapper> {
   }
 }
 
-/// ----------------- 🎭 SKELETON DA TELA PRINCIPAL -----------------
 class _MainSkeleton extends StatelessWidget {
   const _MainSkeleton();
 
@@ -106,21 +111,19 @@ class _MainSkeleton extends StatelessWidget {
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 8,
-        itemBuilder: (_, __) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 14),
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              gradient: LinearGradient(
-                colors: [base, highlight, base],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                stops: const [0.1, 0.3, 0.8],
-              ),
+        itemBuilder: (_, __) => Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          height: 120,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: LinearGradient(
+              colors: [base, highlight, base],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              stops: const [0.1, 0.3, 0.8],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

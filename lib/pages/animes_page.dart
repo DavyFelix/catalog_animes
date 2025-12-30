@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 
 import 'theme_controller.dart';
 import 'details_page.dart';
+import 'dashboard_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AnimeListPage extends StatefulWidget {
   const AnimeListPage({super.key});
@@ -129,9 +131,32 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Catálogo de Animes"),
+
+        // FOTO DE PERFIL (Firebase ou padrão)
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DashboardPage(),
+                ),
+              );
+            },
+            child: CircleAvatar(
+              backgroundImage: user?.photoURL != null
+                  ? NetworkImage(user!.photoURL!)
+                  : const NetworkImage("https://i.pravatar.cc/200"),
+            ),
+          ),
+        ),
+
         actions: [
           IconButton(
             icon: Icon(
@@ -207,8 +232,8 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
                     final anime = media[index];
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
                         onTap: () {
@@ -251,8 +276,7 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       anime["title"]["romaji"],

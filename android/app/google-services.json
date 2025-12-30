@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "302287021982",
+    "project_id": "cataloganimes",
+    "storage_bucket": "cataloganimes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302287021982:android:445f99a1d900b6d132d88f",
+        "android_client_info": {
+          "package_name": "com.example.catalog_animes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqy99aQDifewzL_zcrYsly4JtV-q__rAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
