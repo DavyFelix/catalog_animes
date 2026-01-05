@@ -91,7 +91,6 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
     setState(() {});
   }
 
-  // ——— SEARCH COM DEBOUNCE ———
   void _onSearchChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
@@ -110,7 +109,6 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
     super.dispose();
   }
 
-  // ——— SKELETON ———
   Widget _buildSkeleton() {
     return ListView.builder(
       itemCount: 6,
@@ -130,23 +128,18 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Catálogo de Animes"),
-
-        // FOTO DE PERFIL (Firebase ou padrão)
         leading: Padding(
           padding: const EdgeInsets.only(left: 8),
           child: GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const DashboardPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const DashboardPage()),
               );
             },
             child: CircleAvatar(
@@ -156,7 +149,6 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
             ),
           ),
         ),
-
         actions: [
           IconButton(
             icon: Icon(
@@ -171,7 +163,6 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
 
       body: Column(
         children: [
-          // ——— SEARCH MELHORADO ———
           Padding(
             padding: const EdgeInsets.all(10),
             child: TextField(
@@ -201,113 +192,136 @@ query GetAnime($page: Int, $perPage: Int, $search: String) {
                 },
               ),
               builder: (result, {fetchMore, refetch}) {
-                if (result.isLoading) {
-                  return _buildSkeleton();
-                }
+                if (result.isLoading) return _buildSkeleton();
 
                 if (result.hasException) {
-                  return Center(
-                    child: Text("Erro: ${result.exception}"),
-                  );
+                  return Center(child: Text("Erro: ${result.exception}"));
                 }
 
                 final page = result.data!["Page"];
                 final List media = page["media"];
-                final hasNext = page["pageInfo"]["hasNextPage"];
+                final bool hasNext = page["pageInfo"]["hasNextPage"];
 
-                return ListView.builder(
-                  itemCount: media.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == media.length) {
-                      if (!hasNext) return const SizedBox.shrink();
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: media.length,
+                        itemBuilder: (context, index) {
+                          final anime = media[index];
 
-                      return TextButton(
-                        onPressed: () {
-                          setState(() => currentPage++);
-                        },
-                        child: const Text("Carregar mais"),
-                      );
-                    }
-
-                    final anime = media[index];
-
-                    return Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => AnimeDetailsPage(anime: anime),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: theme.cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.shadowColor.withOpacity(0.15),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Hero(
-                                tag: "anime_${anime["id"]}",
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    bottomLeft: Radius.circular(16),
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        AnimeDetailsPage(anime: anime),
                                   ),
-                                  child: Image.network(
-                                    anime["coverImage"]["large"],
-                                    width: 90,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      anime["title"]["romaji"],
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: theme.textTheme.titleMedium,
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: theme.cardColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: theme.shadowColor.withOpacity(0.15),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      "Clique para ver detalhes",
-                                      style: theme.textTheme.bodySmall,
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Hero(
+                                      tag: "anime_${anime["id"]}",
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(16),
+                                          bottomLeft: Radius.circular(16),
+                                        ),
+                                        child: Image.network(
+                                          anime["coverImage"]["large"],
+                                          width: 90,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            anime["title"]["romaji"],
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: theme.textTheme.titleMedium,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            "Clique para ver detalhes",
+                                            style: theme.textTheme.bodySmall,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        favorites.contains(anime["id"])
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () =>
+                                          _toggleFavorite(anime["id"]),
                                     ),
                                   ],
                                 ),
                               ),
-                              IconButton(
-                                icon: Icon(
-                                  favorites.contains(anime["id"])
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () =>
-                                    _toggleFavorite(anime["id"]),
-                              )
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+
+                    // PAGINAÇÃO COM SETAS
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: currentPage > 1
+                                ? () {
+                                    setState(() => currentPage--);
+                                  }
+                                : null,
+                          ),
+                          Text(
+                            "Página $currentPage",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.arrow_forward),
+                            onPressed: hasNext
+                                ? () {
+                                    setState(() => currentPage++);
+                                  }
+                                : null,
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
                 );
               },
             ),
